@@ -1,0 +1,42 @@
+# ─── SECRETS — never commit these ────────────────────────────────────────────
+.env
+*.env
+.env.*
+!.env.example
+
+# ─── Python ──────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+*.whl
+
+# ─── Virtual environments ─────────────────────────────────────────────────────
+venv/
+.venv/
+env/
+ENV/
+.env/
+
+# ─── IDEs & editors ──────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ─── Logs ────────────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ─── Local test / scratch files ───────────────────────────────────────────────
+test_*.py
+scratch.*

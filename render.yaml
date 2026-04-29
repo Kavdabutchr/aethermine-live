@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: aethermine
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python bot.py
+    plan: free
+    envVars:
+      - key: BOT_TOKEN
+        sync: false          # Set manually in Render dashboard — never store here
+      - key: DATABASE_URL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: WEBHOOK_SECRET
+        generateValue: true  # Render auto-generates a random value on first deploy
+    healthCheckPath: /health
