@@ -330,6 +330,82 @@ def get_all_user_ids():
         cur.close()
         release_db(conn)
 
+# ── BACKEND-FRONTEND SYNC FUNCTIONS ───────────────────────────────────────────
+def calculate_user_balance(user_id):
+    """Calculate user's earned balance based on time since last withdrawal or upgrade"""
+    conn = get_db()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    try:
+        cur.execute("""
+            SELECT plan, daily_earn as daily, plan_activated_at, last_withdrawal_at,
+                   ref_earnings, COALESCE(withdrawn_total, 0) as withdrawn_total
+            FROM users WHERE user_id = %s
+        """, (user_id,))
+        user = cur.fetchone()
+        
+        if not user or not user['plan_activated_at']:
+            return {
+                'mining_balance': 0.0,
+                'ref_balance': float(user['ref_earnings']) if user else 0.0,
+                'total_balance': float(user['ref_earnings']) if user else 0.0,
+                'daily_rate': float(user['daily']) if user else 0.05
+            }
+        
+        from datetime import datetime, timezone
+        start_time = user['last_withdrawal_at'] or user['plan_activated_at']
+        now = datetime.now(timezone.utc)
+        seconds_elapsed = (now - start_time).total_seconds()
+        
+        daily_rate = float(user['daily'])
+        earnings_per_second = daily_rate / 86400
+        mining_balance = earnings_per_second * seconds_elapsed
+        ref_balance = float(user['ref_earnings'])
+        
+        return {
+            'mining_balance': round(mining_balance, 4),
+            'ref_balance': round(ref_balance, 2),
+            'total_balance': round(mining_balance + ref_balance, 4),
+            'daily_rate': daily_rate
+        }
+    finally:
+        cur.close()
+        release_db(conn)
+
+def get_user_data(user_id):
+    """Get complete user data including calculated balance for frontend sync"""
+    conn = get_db()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    try:
+        cur.execute("""
+            SELECT user_id, username, first_name, plan, daily_earn as daily, power,
+                   referral_count, ref_earnings, plan_activated_at,
+                   last_withdrawal_at, withdrawn_total, joined_at
+            FROM users WHERE user_id = %s
+        """, (user_id,))
+        user = cur.fetchone()
+        
+        if not user:
+            return None
+        
+        balance_data = calculate_user_balance(user_id)
+        user_data = dict(user)
+        user_data['balance'] = balance_data['total_balance']
+        user_data['mining_balance'] = balance_data['mining_balance']
+        user_data['ref_balance'] = balance_data['ref_balance']
+        user_data['daily'] = balance_data['daily_rate']
+        
+        if user_data.get('joined_at'):
+            user_data['joined_at'] = user_data['joined_at'].isoformat()
+        if user_data.get('plan_activated_at'):
+            user_data['plan_activated_at'] = user_data['plan_activated_at'].isoformat()
+        if user_data.get('last_withdrawal_at'):
+            user_data['last_withdrawal_at'] = user_data['last_withdrawal_at'].isoformat()
+        
+        return user_data
+    finally:
+        cur.close()
+        release_db(conn)
+
 # ── NEW: withdrawal DB helpers ────────────────────────────────────────────────
 def save_withdrawal(user_id, amount, fee, receive, address):
     conn = get_db()
@@ -772,6 +848,22 @@ class WebHandler(BaseHTTPRequestHandler):
                 self._respond(200, 'application/json', json.dumps(payments).encode())
             except Exception as e:
                 logger.exception("admin/payments error")
+                self._respond(500, 'application/json', b'{"error":"Internal error"}')
+        elif path.startswith('/api/user/'):
+            # Public API endpoint for frontend sync
+            try:
+                user_id_str = path.split('/')[-1]
+                user_id = int(user_id_str)
+                user_data = get_user_data(user_id)
+                
+                if user_data:
+                    self._respond(200, 'application/json', json.dumps(user_data).encode())
+                else:
+                    self._respond(404, 'application/json', b'{"error":"User not found"}')
+            except ValueError:
+                self._respond(400, 'application/json', b'{"error":"Invalid user ID"}')
+            except Exception as e:
+                logger.exception("api/user error")
                 self._respond(500, 'application/json', b'{"error":"Internal error"}')
         else:
             self._respond(200, 'text/plain', b'OK')
