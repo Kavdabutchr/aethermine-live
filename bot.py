@@ -31,12 +31,12 @@ BOT_TOKEN      = os.environ["BOT_TOKEN"]
 DATABASE_URL   = os.environ["DATABASE_URL"]
 ADMIN_PASSWORD = os.environ["ADMIN_PASSWORD"]
 WEBHOOK_SECRET = os.environ.get("WEBHOOK_SECRET", os.urandom(32).hex())  # auto-gen if not set
-WALLET         = "TBdoPKgRbhfpfXh6MCkhewgfs4z7nw65P8"
+WALLET         = "TQL5PQyDdjaUFYJA2FX2BWavuPFyymw9sZ"
 ADMIN_IDS      = [6740298503]
 WEBAPP_URL     = "https://aethermine.vercel.app"
 TRON_API       = "https://apilist.tronscanapi.com/api/token_trc20/transfers"
 USDT_CONTRACT  = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
-WEBHOOK_URL    = "http://TEMP_WILL_UPDATE_AFTER_EC2:8080/webhook"
+WEBHOOK_URL    = "https://hubcap-finale-veggie.ngrok-free.dev/webhook"
 PORT           = 8080
 
 PLANS = {
