@@ -1553,21 +1553,226 @@ async def markpaid_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("❌ Withdrawal ID not found.")
 
 async def help_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    """Comprehensive FAQ/Help system"""
     text = (
-        "❓ *AetherMine Help*\n\n"
-        "*/start* — Launch the bot\n"
-        "*/plans* — View & select upgrade plans\n"
-        "*/balance* — Check your balance & plan\n"
-        "*/refer* — Get your referral link\n\n"
-        "💳 *Payments are automatic!*\n"
-        "Select a plan → send exact USDT → plan activates instantly!\n\n"
-        "💬 *Support:* @aetherrmine_bot\n\n"
-        f"📬 *Wallet (USDT TRC-20):*\n`{WALLET}`"
+        "📚 *AetherMine Help Center*\n\n"
+        "Select a topic to learn more:\n\n"
+        "🚀 Getting Started\n"
+        "💰 How Auto-Mining Works\n"
+        "💎 Upgrading Plans\n"
+        "💸 Withdrawals\n"
+        "👥 Referral System\n"
+        "❓ Common Questions\n\n"
+        "Or use quick commands:\n"
+        "*/start* — Launch the mining app\n"
+        "*/plans* — View upgrade options\n"
+        "*/balance* — Check your balance\n"
+        "*/refer* — Get referral link\n\n"
+        f"📬 *Payment Wallet:*\n`{WALLET}`"
     )
+    keyboard = [
+        [InlineKeyboardButton("🚀 Getting Started", callback_data="help_start")],
+        [InlineKeyboardButton("💰 How Auto-Mining Works", callback_data="help_mining")],
+        [InlineKeyboardButton("💎 Upgrading Plans", callback_data="help_upgrade")],
+        [InlineKeyboardButton("💸 Withdrawals", callback_data="help_withdraw")],
+        [InlineKeyboardButton("👥 Referral System", callback_data="help_referral")],
+        [InlineKeyboardButton("❓ Common Questions", callback_data="help_faq")],
+    ]
+    markup = InlineKeyboardMarkup(keyboard)
     if update.callback_query:
-        await update.callback_query.message.reply_text(text, parse_mode="Markdown")
+        await update.callback_query.message.reply_text(text, parse_mode="Markdown", reply_markup=markup)
     else:
-        await update.message.reply_text(text, parse_mode="Markdown")
+        await update.message.reply_text(text, parse_mode="Markdown", reply_markup=markup)
+
+async def help_sections(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    """Handle help section callbacks"""
+    query = update.callback_query
+    await query.answer()
+    data = query.data
+    
+    if data == "help_start":
+        text = (
+            "🚀 *GETTING STARTED*\n\n"
+            "*What is AetherMine?*\n"
+            "An automated USDT earning platform. Your miner works 24/7 to generate passive income!\n\n"
+            "*How to start:*\n"
+            "1️⃣ Open @aetherrmine_bot\n"
+            "2️⃣ Send /start\n"
+            "3️⃣ Your free miner starts earning $0.05/day automatically!\n"
+            "4️⃣ Upgrade for higher earnings\n\n"
+            "*No tapping, no manual work. 100% automatic!*"
+        )
+    elif data == "help_mining":
+        text = (
+            "💰 *HOW AUTO-MINING WORKS*\n\n"
+            "*Do I need to tap anything?*\n"
+            "❌ NO! 100% automatic once activated.\n\n"
+            "*How it works:*\n"
+            "Your miner generates USDT based on your plan's daily rate:\n"
+            "• Free: $0.05/day\n"
+            "• Trial: $0.25/day\n"
+            "• Starter: $0.50/day\n"
+            "• Bronze: $1.20/day\n"
+            "• Silver: $3/day\n"
+            "• Gold: $6.50/day\n"
+            "• Platinum: $14/day\n"
+            "• Diamond: $30/day\n\n"
+            "*Your balance grows every second!*\n\n"
+            "*Do I keep the app open?*\n"
+            "❌ NO! Works even when:\n"
+            "✅ App is closed\n"
+            "✅ Phone is off\n"
+            "✅ You're offline\n\n"
+            "When you return, all earnings are added automatically!\n\n"
+            "*What's the green glow?*\n"
+            "Visual indicator your miner is actively working right now!\n\n"
+            "*What's the progress bar?*\n"
+            "Shows how much you've earned toward your next daily milestone.\n\n"
+            "Example (Silver - $3/day):\n"
+            "• 6 hours = 25% ($0.75)\n"
+            "• 12 hours = 50% ($1.50)\n"
+            "• 24 hours = 100% ($3.00) → resets"
+        )
+    elif data == "help_upgrade":
+        text = (
+            "💎 *UPGRADING PLANS*\n\n"
+            "*How to upgrade:*\n"
+            "1️⃣ Go to PLANS tab\n"
+            "2️⃣ Click SELECT PLAN\n"
+            "3️⃣ Send exact USDT (TRC-20) to our wallet\n"
+            "4️⃣ Plan activates in 1-2 minutes!\n\n"
+            "*Payment method:*\n"
+            "USDT (TRC-20) on TRON network only\n\n"
+            f"*Payment Wallet:*\n`{WALLET}`\n\n"
+            "*How payments work:*\n"
+            "✅ 100% automatic detection\n"
+            "✅ No screenshots needed\n"
+            "✅ No confirmation messages\n"
+            "✅ Just send exact amount!\n\n"
+            "*Why EXACT amount?*\n"
+            "Our system matches amounts to plans:\n"
+            "$3 = Trial | $5 = Starter\n"
+            "$10 = Bronze | $25 = Silver\n"
+            "$50 = Gold | $100 = Platinum\n"
+            "$200 = Diamond\n\n"
+            "*What happens to my balance?*\n"
+            "✅ Never lost!\n"
+            "✅ Existing balance stays\n"
+            "✅ Daily rate increases\n"
+            "✅ Start earning more immediately!"
+        )
+    elif data == "help_withdraw":
+        text = (
+            "💸 *WITHDRAWALS*\n\n"
+            "*Requirements:*\n"
+            "✅ At least $5 USDT balance\n"
+            "✅ Silver plan ($25) or higher\n"
+            "✅ Valid TRC-20 wallet address\n\n"
+            "*How to withdraw:*\n"
+            "1️⃣ Go to WALLET tab\n"
+            "2️⃣ Enter amount (min $5)\n"
+            "3️⃣ Enter TRC-20 address\n"
+            "4️⃣ Click REQUEST WITHDRAWAL\n"
+            "5️⃣ We process in 24-48 hours\n\n"
+            "*Fees:*\n"
+            "5% per withdrawal\n\n"
+            "Example:\n"
+            "Withdraw $100 → Fee $5 → Receive $95\n\n"
+            "*Why Silver requirement?*\n"
+            "• Ensures serious users\n"
+            "• Prevents abuse\n"
+            "• Platform sustainability\n\n"
+            "*Can I withdraw referral earnings?*\n"
+            "✅ YES! Combined with your balance."
+        )
+    elif data == "help_referral":
+        text = (
+            "👥 *REFERRAL SYSTEM*\n\n"
+            "*How it works:*\n"
+            "1️⃣ Share your unique link\n"
+            "2️⃣ Someone joins & upgrades\n"
+            "3️⃣ You earn commission!\n\n"
+            "*Commission rates:*\n"
+            "• Most plans: 10%\n"
+            "• Diamond holders: 20%\n\n"
+            "*Example:*\n"
+            "Your referral buys Silver ($25)\n"
+            "You earn: $2.50 (or $5 with Diamond)\n"
+            "Added to balance instantly!\n\n"
+            "*Where's my link?*\n"
+            "Go to REFER tab or use /refer\n\n"
+            "*How to get 20%?*\n"
+            "Upgrade to Diamond plan ($200)\n\n"
+            "*Any limits?*\n"
+            "❌ NO! Unlimited referrals!\n\n"
+            "*Best tips:*\n"
+            "• Share in Telegram groups\n"
+            "• Post on social media\n"
+            "• Explain it's passive income\n"
+            "• Show your earnings proof!"
+        )
+    elif data == "help_faq":
+        text = (
+            "❓ *COMMON QUESTIONS*\n\n"
+            "*Q: Is this real crypto mining?*\n"
+            "A: No, it's a USDT rewards platform. Earn based on your plan's daily rate.\n\n"
+            "*Q: Is my data safe?*\n"
+            "A: Yes! Secure encryption, HTTPS, regular audits.\n\n"
+            "*Q: Can I have multiple accounts?*\n"
+            "A: No. One per person. Multiple = ban.\n\n"
+            "*Q: What if payment doesn't activate?*\n"
+            "A: Contact support with transaction hash. We'll activate manually.\n\n"
+            "*Q: Can I cancel my plan?*\n"
+            "A: No refunds. Plans run forever once activated.\n\n"
+            "*Q: Do plans expire?*\n"
+            "A: Never! They run automatically forever.\n\n"
+            "*Q: What if bot stops working?*\n"
+            "A: Your balance is safe in our database. Earnings continue accumulating.\n\n"
+            "*Q: How to maximize earnings?*\n"
+            "• Upgrade early\n"
+            "• Refer aggressively\n"
+            "• Upgrade to Diamond\n"
+            "• Reinvest earnings\n\n"
+            "*Need more help?*\n"
+            "Use /help anytime!"
+        )
+    else:
+        text = "Unknown help topic."
+    
+    keyboard = [[InlineKeyboardButton("⬅️ Back to Help Menu", callback_data="help_back")]]
+    markup = InlineKeyboardMarkup(keyboard)
+    await query.edit_message_text(text, parse_mode="Markdown", reply_markup=markup)
+
+async def help_back(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    """Return to main help menu"""
+    query = update.callback_query
+    await query.answer()
+    text = (
+        "📚 *AetherMine Help Center*\n\n"
+        "Select a topic to learn more:\n\n"
+        "🚀 Getting Started\n"
+        "💰 How Auto-Mining Works\n"
+        "💎 Upgrading Plans\n"
+        "💸 Withdrawals\n"
+        "👥 Referral System\n"
+        "❓ Common Questions\n\n"
+        "Or use quick commands:\n"
+        "*/start* — Launch the mining app\n"
+        "*/plans* — View upgrade options\n"
+        "*/balance* — Check your balance\n"
+        "*/refer* — Get referral link\n\n"
+        f"📬 *Payment Wallet:*\n`{WALLET}`"
+    )
+    keyboard = [
+        [InlineKeyboardButton("🚀 Getting Started", callback_data="help_start")],
+        [InlineKeyboardButton("💰 How Auto-Mining Works", callback_data="help_mining")],
+        [InlineKeyboardButton("💎 Upgrading Plans", callback_data="help_upgrade")],
+        [InlineKeyboardButton("💸 Withdrawals", callback_data="help_withdraw")],
+        [InlineKeyboardButton("👥 Referral System", callback_data="help_referral")],
+        [InlineKeyboardButton("❓ Common Questions", callback_data="help_faq")],
+    ]
+    markup = InlineKeyboardMarkup(keyboard)
+    await query.edit_message_text(text, parse_mode="Markdown", reply_markup=markup)
 
 async def button(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
@@ -1576,6 +1781,9 @@ async def button(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     elif q.data == "balance": await balance(update, ctx)
     elif q.data == "referral": await refer(update, ctx)
     elif q.data == "help": await help_cmd(update, ctx)
+    elif q.data in ["help_start", "help_mining", "help_upgrade", "help_withdraw", "help_referral", "help_faq"]:
+        await help_sections(update, ctx)
+    elif q.data == "help_back": await help_back(update, ctx)
     elif q.data.startswith("upgrade_"): await handle_upgrade(update, ctx)
     elif q.data.startswith("paid_check_"): await handle_paid_check(update, ctx)
 
