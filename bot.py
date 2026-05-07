@@ -378,7 +378,7 @@ def get_user_data(user_id):
     try:
         cur.execute("""
             SELECT user_id, username, first_name, plan, daily_earn as daily, power,
-                   referral_count, ref_earnings, plan_activated_at,
+                   ref_count as referral_count, ref_earnings, plan_activated_at,
                    last_withdrawal_at, withdrawn_total, joined_at
             FROM users WHERE user_id = %s
         """, (user_id,))
